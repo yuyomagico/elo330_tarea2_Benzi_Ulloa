@@ -112,8 +112,8 @@ int main(int argc, const char* argv[]){
       char play_command_r[CMD_LENGTH];
       // MBT: Para ordernar aplique sprintf en vez de strcpy y strcat
       sprintf(play_command, PLAY_COMMAND, argv[1]);
-      sprintf(play_command_g, PLAY_COMMAND, argv[1]);
-      sprintf(play_command_r, PLAY_COMMAND, argv[1]);
+      sprintf(play_command_g, PLAY_COMMAND, g_file);
+      sprintf(play_command_r, PLAY_COMMAND, r_file);
 
       /* Se muestra el comando y el tamanio del archivo */
       printf("Play command: %s\n", play_command);
