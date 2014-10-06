@@ -9,7 +9,7 @@
 /* OS Detection*/
 #ifdef _WIN32
 	const char* OS_VERSION="Win32";
-	char* PLAY_COMMAND = "sox -r 20000 -b 16 -L -e signed-integer -t raw ";
+	char* PLAY_COMMAND = "..\\win32\\sox\\sox -r 20000 -b 16 -L -e signed-integer -t raw ";
 #elif __APPLE__
     const char* OS_VERSION="Apple";
 #elif __linux
