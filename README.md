@@ -17,3 +17,12 @@ El programa utiliza sox.exe, por lo que se requiere tenerlo en el path o en el d
 Notas para Linux:
 
 El programa utiliza "aplay", puede instalarse con $apt-get install aplay $yum install aplay
+
+Corriendo
+---------
+
+### Linux
+
+En la carpeta raiz del repositorio ejecutar
+
+	make && make run
