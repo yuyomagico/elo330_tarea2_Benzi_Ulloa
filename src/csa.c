@@ -49,8 +49,8 @@ int main(int argc, const char* argv[]){
 			if( filesize%2 != 0 ){
 				filesize--;
 			}
-			sprintf(g_file,"%s%s",argv[1],"_g");
-			sprintf(r_file,"%s%s",argv[1],"_r");
+			sprintf(g_file,"%s%s",argv[1],"._g");
+			sprintf(r_file,"%s%s",argv[1],"._r");
 		}
 		
 		/* Se concatena el comando */
