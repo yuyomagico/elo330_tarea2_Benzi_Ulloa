@@ -12,6 +12,7 @@
 	char* PLAY_COMMAND = "..\\win32\\sox\\sox -r 20000 -b 16 -L -e signed-integer -t raw ";
 #elif __APPLE__
     const char* OS_VERSION="Apple";
+#error NOT SUPORTED YET
 #elif __linux
     const char* OS_VERSION="Linux";
 	char* PLAY_COMMAND = "aplay --format=S16_LE -t raw ";
@@ -27,7 +28,7 @@ int main(int argc, const char* argv[]){
 	
 	
 	if(argc != 4 && argc != 5){
-		printf("Sintaxis: csa   <archivo_de_audio_original>  <ganancia> <offset> [p]");
+		printf("Sintaxis: %s <archivo_de_audio_original> <ganancia> <offset> [p]\n", argv[0]);
 	}
 	else if(argc == 4){
 		printf("modo 1");
