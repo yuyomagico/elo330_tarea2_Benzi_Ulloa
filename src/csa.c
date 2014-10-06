@@ -84,12 +84,12 @@ int main(int argc, const char* argv[]){
 		
 		/* Abertura de archivos, en modo binario, lectura y escritura segun corresponda */
 		FILE* input_file = fopen(argv[1], "rb");
-		FILE* gain_file = fopen(g_file, "wb");
-		FILE* rest_file = fopen(r_file, "wb");
+		//FILE* gain_file = fopen(g_file, "wb");
+		//FILE* rest_file = fopen(r_file, "wb");
 		
 		fread(orig_data, sizeof(short), filesize/2, input_file);
 		fclose(input_file);
-		fclose(rest_file);
+		//fclose(rest_file);
 		
 		int i;
 		float gain;
@@ -110,15 +110,15 @@ int main(int argc, const char* argv[]){
 			//printf("%d.", gain_data[i]);
 		}
 		/* Se guardan los datos calculados en el archivo de ganancias */
-		fwrite(gain_data, sizeof(short), filesize/2, gain_file);
-		fclose(gain_file);
+		//fwrite(gain_data, sizeof(short), filesize/2, gain_file);
+		//fclose(gain_file);
 		
 		/* Se Analiza el archivo con ganancia */
-		check_data(gain_data, rest_data, filesize/2);
+		//check_data(gain_data, rest_data, filesize/2);
 		
 		/* Se guarda la data restaurada en el archivo correspondiente */
-		fwrite(rest_data, sizeof(short), filesize/2, rest_file);
-		fclose(rest_file);
+		//fwrite(rest_data, sizeof(short), filesize/2, rest_file);
+		//fclose(rest_file);
 		
 		/* Se reproduce el archivo de audio de entrada, amplificado y restaurado */
 		FILE* stream = popen(play_command, "r");
