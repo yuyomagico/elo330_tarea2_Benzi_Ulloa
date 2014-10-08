@@ -19,6 +19,7 @@
 #endif
 
 void check_data(short int*, short int*, float, int);
+void plot_data(short int*, short int*, short int*, int);
 
 int main(int argc, const char* argv[]){
 	printf("OS: %s\n", OS_VERSION);
@@ -120,33 +121,11 @@ int main(int argc, const char* argv[]){
 		fwrite(gain_data, sizeof(short), filesize, gain_file);
 		fclose(gain_file);
 		
-		char plot_str[CMD_LENGTH];
-		sprintf(plot_str, "gnuplot -persist -e \"plot  \\\"gain.dat\\\" using 1:2 title '%s'\"",g_file);
-		FILE* plotter = popen(plot_str, "w");
-		//pclose(plotter);
-		//fprintf(gain_data, sizeof(short), filesize, gain_file);
-		
 		/* Se Analiza el archivo con ganancia */
 		check_data(gain_data, rest_data, gain, filesize);
 		
 		/* Se guarda la data restaurada en el archivo correspondiente */
 		fwrite(rest_data, sizeof(short), filesize, rest_file);
-		fclose(rest_file);
-		
-		input_file = fopen("gain.dat", "w");
-		gain_file = fopen("gain.dat", "w");
-		rest_file = fopen("gain.dat", "w");
-		/* Se hace .dat*/
-		fprintf(input_file, "# time\t orig\n");
-		fprintf(gain_file, "# time\t gain\n");
-		fprintf(rest_file, "# time\t rest\n");
-		for(i=0; i<filesize; i++){
-			fprintf(input_file, "%d\t%d\n", i, orig_data[i]);
-			fprintf(gain_file, "%d\t%d\n", i, gain_data[i]);
-			fprintf(rest_file, "%d\t%d\n", i, rest_data[i]);
-		}
-		fclose(input_file);
-		fclose(gain_file);
 		fclose(rest_file);
 		
 		/* Se reproduce el archivo de audio de entrada, amplificado y restaurado */
@@ -259,4 +238,30 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 	//remove(tmpName);
 	
 	printf("Archivo restaurado.\n");
+}
+
+void plot_data(short int* orig_data, short int* gain_data, short int* rest_data, int filesize){
+	char plot_str[CMD_LENGTH];
+	
+	FILE* input_file = fopen("gain.dat", "w");
+	FILE* gain_file = fopen("gain.dat", "w");
+	FILE* rest_file = fopen("gain.dat", "w");
+	
+	fprintf(input_file, "# time\t orig\n");
+	fprintf(gain_file, "# time\t gain\n");
+	fprintf(rest_file, "# time\t rest\n");
+	
+	int i;
+	for(i=0; i<filesize; i++){
+		fprintf(input_file, "%d\t%d\n", i, orig_data[i]);
+		fprintf(gain_file, "%d\t%d\n", i, gain_data[i]);
+		fprintf(rest_file, "%d\t%d\n", i, rest_data[i]);
+	}
+	fclose(input_file);
+	fclose(gain_file);
+	fclose(rest_file);
+	
+	sprintf(plot_str, "gnuplot -persist -e \"plot  \\\"gain.dat\\\" using 1:2 title '%s'\"",g_file);
+	
+	FILE* plotter = popen(plot_str, "w");
 }
