@@ -37,7 +37,6 @@ int main(int argc, const char* argv[]){
 		/* Check de archivo valido y se obtiene el tamanio */
 		struct stat st;
 		int filesize;
-		// MBT: Si prepones una extension al nombre del archivo, cuando uses un archivo dentro de una carpeta GG	
 		char g_file[100], r_file[100];
 		if(stat(argv[1], &st) != 0){
 			printf("Invalid file\n");
@@ -49,6 +48,7 @@ int main(int argc, const char* argv[]){
 			if( filesize%2 != 0 ){
 				filesize--;
 			}
+		// MBT: Si prepones una extension al nombre del archivo, cuando uses un archivo dentro de una carpeta GG	
 			sprintf(g_file,"%s%s",argv[1],"._g");
 			sprintf(r_file,"%s%s",argv[1],"._r");
 		}
