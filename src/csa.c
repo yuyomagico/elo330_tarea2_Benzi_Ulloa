@@ -119,6 +119,12 @@ int main(int argc, const char* argv[]){
       printf("Play command: %s\n", play_command);
       printf("File size Bytes: %d Words: %d\n", filesize, filesize/2);
 
+      // MBT: Su hack feo para que se pueda usar en un Mac
+      // aunque sea para solo tratar los archivos
+#ifdef __APPLE__
+      fprintf(stderr,"WARN: Can't play audio on a Mac\n");
+      exit(0);
+#endif
       FILE* stream = popen(play_command, "r");
       pclose(stream);
       stream = popen(play_command_g, "r");
