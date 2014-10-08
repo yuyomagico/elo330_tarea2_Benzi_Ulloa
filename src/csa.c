@@ -18,7 +18,7 @@ const char* OS_VERSION="Linux";
 char* PLAY_COMMAND = "aplay --format=S16_LE -t raw %s";
 #endif
 
-void check_data(short int*, short int*, int);
+void check_data(short int*, short int*, float, int);
 
 int main(int argc, const char* argv[]){
  printf("OS: %s\n", OS_VERSION);
@@ -88,7 +88,7 @@ int main(int argc, const char* argv[]){
     fclose(gain_file);
 
     /* Se Analiza el archivo con ganancia */
-    check_data(gain_data, rest_data, filesize/2);
+	check_data(gain_data, rest_data, gain, filesize);
 
     /* Se guarda la data restaurada en el archivo correspondiente */
     FILE* rest_file = fopen(r_file, "wb");
@@ -136,6 +136,103 @@ int main(int argc, const char* argv[]){
   exit(0);
 }
 
-void check_data(short int *gain_data, short int *rest_data, int data_length){
-  printf("Archivo restaurado.\n");
+void check_data(short int *gain_data, short int *rest_data, float gain,  int data_length){
+	printf("Analizando archivo...\n");
+	
+	/* Parametros del polinomio de interpolacion, valores polinomio interpolacion, archivo temporal, comando fit y comando calc*/
+	float A,B,C,D,E;
+	char tmpName [L_tmpnam];
+	char fit[CMD_LENGTH], eval[CMD_LENGTH];
+	tmpnam (tmpName);
+	
+	int i;
+	if(gain != 0){
+		/* Copio a rest_data, gain_data/gain*/
+		for(i=0; i < data_length; i++){
+			rest_data[i] = (short int) (((float)gain_data[i])/gain);
+		}
+		/* Valores para realizar interpolacion */
+		short int X[4], Y[4];
+		for(i=0; i < data_length; i++){
+			/* Chequeo saturacion y no estar en los extremos */
+			if((gain_data[i] == 32767 || gain_data[i] == -32768) && i < data_length - 2 && i > 1){
+				short int sat_type;
+				unsigned int sat_start, sat_end;
+				
+				sat_type = gain_data[i];
+				
+				sat_start = i;
+				X[0] = i-1;
+				X[1] = i;
+				Y[0] = rest_data[i-1];
+				Y[1] = rest_data[i];
+				
+				/* Busco todos los puntos saturados hasta encontrar */
+				while(gain_data[i] == sat_type && i < data_length - 2){
+					i++;
+				}
+				
+				sat_end = i-1;
+				X[2] = i-1;
+				X[3] = i;
+				Y[2] = rest_data[i-1];
+				Y[3] = rest_data[i];
+				
+				/* Solo considerar saturaciones mayores a 2 puntos*/
+				if(sat_end - sat_start > 1){
+					printf("X: [%d,%d,%d,%d], Y: [%d,%d,%d,%d]\n", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3]);
+					/* Polyfit, parseando salida (borra todo lo que salga antes de "RESULT") y guardandola en archivo */
+										
+					/* Se reparan todos los puntos afectados en los datos a restaurar*/
+					char to_eval[9*(sat_end - sat_start + 1)];
+					char num[7];
+					float result[sat_end - sat_start + 1];
+					int j;
+					sprintf(to_eval, "");
+					
+					for(j=sat_start; j<=sat_end; j++){
+						if(j != sat_end)
+							sprintf(num, "%d,", j);
+						else
+							sprintf(num, "%d", j);
+						strcat(to_eval, num);
+					}
+					
+					sprintf(fit, "octave --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]) | sed -n -e '/RESULT =/,${p}' |  sed 's/ \\+/,/g'> %s", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 2, to_eval, tmpName);
+					FILE* octave = popen(fit, "w");
+					pclose(octave);
+					
+					FILE* output = fopen(tmpName, "r");
+					fscanf(output, "RESULT,=\n\n");
+					
+					int k = 0;
+					for(k=0; k< sat_end - sat_start + 1; k++){
+						//result[k] = atoi((char*) output);
+						fscanf(output, ",%f", &(result[k]));
+					}
+					fclose(output);
+					
+					//printf("P = %.2fx^4 %.2fx^3 %.2fx^2 %.2fx %.2f\nUBICACION: %d SATURACIONES: %d\n", A, B, C, D, E, sat_start*2, (sat_end - sat_start + 1));
+					for(j=sat_start; j<=sat_end; j++){
+						if(result[j-sat_start] > 32767 || result[j-sat_start] < -32768){
+							printf("Dato (%d,%.2f) saturado\n", j, result[j-sat_start]);
+							rest_data[j] = rest_data[j-1];
+						}
+						else{
+							rest_data[j] = result[j-sat_start];
+							printf("Nuevo dato (%d, %d)\n", j, rest_data[j]);
+						}
+					}
+				}
+			}
+		}
+	}
+	else{
+		printf("Error: gain = 0");
+		exit(1);
+	}
+	
+	//remove(tmpName);
+	
+	printf("Archivo restaurado.\n");
 }
