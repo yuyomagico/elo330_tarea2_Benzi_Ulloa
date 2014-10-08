@@ -9,7 +9,7 @@
 /* OS Detection*/
 #ifdef _WIN32
 const char* OS_VERSION="Win32";
-char* PLAY_COMMAND = "..\\win32\\sox\\sox -r 20000 -b 16 -L -e signed-integer -t raw %s -d";
+char* PLAY_COMMAND = "sox -r 20000 -b 16 -L -e signed-integer -t raw %s -d";
 #elif __APPLE__
 const char* OS_VERSION="Apple";
 char* PLAY_COMMAND ="";
@@ -22,11 +22,7 @@ void check_data(short int*, short int*, float, int);
 
 int main(int argc, const char* argv[]){
  printf("OS: %s\n", OS_VERSION);
-  //execl(".\\sox\\sox.exe",0);
-  //execl(".\\sox\\sox.exe", "-r 8000", "-b 16", "-L", "-e signed-integer", "-t"," raw", "SaludoAudacity.raw", "-d" , 0);
-  //int a = execl(".\\sox\\sox.exe", PLAY_COMMAND , 0);
-
-
+ 
   if(argc != 4 && argc != 5){
     printf("Sintaxis: %s <archivo_de_audio_original> <ganancia> <offset> [p]\n", argv[0]);
   }
