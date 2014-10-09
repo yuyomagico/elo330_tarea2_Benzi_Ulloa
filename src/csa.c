@@ -189,7 +189,6 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 					char num[7];
 					float result[sat_end - sat_start + 1];
 					int j;
-					sprintf(to_eval, "");
 					
 					for(j=sat_start; j<=sat_end; j++){
 						if(j != sat_end)
