@@ -19,7 +19,7 @@ char* PLAY_COMMAND = "aplay --format=S16_LE -t raw %s";
 #endif
 
 void check_data(short int*, short int*, float, int);
-void plot_data(short int*, short int*, short int*, int);
+void plot_data(short int*, short int*, short int*, int, int);
 
 int main(int argc, const char* argv[]){
  printf("OS: %s\n", OS_VERSION);
@@ -32,6 +32,7 @@ int main(int argc, const char* argv[]){
     struct stat st;
     int filesize;
     char g_file[100], r_file[100];
+	
     if(stat(argv[1], &st) != 0){
       printf("Invalid file\n");
       exit(1);
@@ -47,6 +48,10 @@ int main(int argc, const char* argv[]){
       sprintf(g_file,"%s%s",argv[1],"._g");
       sprintf(r_file,"%s%s",argv[1],"._r");
     }
+	
+	int offset;
+	offset = atoi(argv[3]) % filesize;
+	
     /* Se lee el archivo de audio de entrada*/
     short int orig_data[filesize];
     short int gain_data[filesize];
@@ -131,8 +136,8 @@ int main(int argc, const char* argv[]){
       stream = popen(play_command_r, "r");
       pclose(stream);
 	  
-	  plot_data(orig_data, gain_data, rest_data, filesize);
     }
+	plot_data(orig_data, gain_data, rest_data, filesize, offset);
   }
   exit(0);
 }
@@ -163,10 +168,10 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 				sat_type = gain_data[i];
 				
 				sat_start = i;
-				X[0] = i-1;
-				X[1] = i;
-				Y[0] = rest_data[i-1];
-				Y[1] = rest_data[i];
+				X[0] = i-2;
+				X[1] = i-1;
+				Y[0] = rest_data[i-2];
+				Y[1] = rest_data[i-1];
 				
 				/* Busco todos los puntos saturados hasta encontrar */
 				while(gain_data[i] == sat_type && i < data_length - 2){
@@ -174,10 +179,10 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 				}
 				
 				sat_end = i-1;
-				X[2] = i-1;
-				X[3] = i;
-				Y[2] = rest_data[i-1];
-				Y[3] = rest_data[i];
+				X[2] = i;
+				X[3] = i+1;
+				Y[2] = rest_data[i];
+				Y[3] = rest_data[i+1];
 				
 				/* Solo considerar saturaciones mayores a 2 puntos*/
 				if(sat_end - sat_start > 1){
@@ -200,7 +205,6 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 						strcat(to_eval, num);
 					}
 					
-					//sprintf(fit, "octave --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]) | sed -n -e '/RESULT =/,${p}' |  sed 's/ \\+/,/g'> %s", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 2, to_eval, tmpName);
 					sprintf(fit, "octave -q --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]);csvwrite('%s',RESULT)", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 4, to_eval, tmpName);
 					FILE* octave = popen(fit, "w");
 					pclose(octave);
@@ -216,7 +220,6 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 					}
 					fclose(output);
 					
-					//printf("P = %.2fx^4 %.2fx^3 %.2fx^2 %.2fx %.2f\nUBICACION: %d SATURACIONES: %d\n", A, B, C, D, E, sat_start*2, (sat_end - sat_start + 1));
 					for(j=sat_start; j<=sat_end; j++){
 						if(result[j-sat_start] > 32767 || result[j-sat_start] < -32768){
 							printf("Dato (%d,%.2f) saturado\n", j, result[j-sat_start]);
@@ -224,7 +227,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 						}
 						else{
 							rest_data[j] = result[j-sat_start];
-							printf("Nuevo dato (%d, %d)\n", j, rest_data[j]);
+							printf("Interpolacion: (%d, %d)\n", j, rest_data[j]);
 						}
 					}
 				}
@@ -242,7 +245,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 	
 }
 
-void plot_data(short int* orig_data, short int* gain_data, short int* rest_data, int filesize){
+void plot_data(short int* orig_data, short int* gain_data, short int* rest_data, int filesize, int offset){
 	char plot_str[CMD_LENGTH];
 	
 	FILE* data_file = fopen("data.dat", "w");
@@ -250,7 +253,7 @@ void plot_data(short int* orig_data, short int* gain_data, short int* rest_data,
 	fprintf(data_file, "# time\torig\tgain\trest\n");
 	
 	int i;
-	for(i=0; i<filesize; i++){
+	for(i=offset; i<filesize; i++){
 		fprintf(data_file, "%d\t%d\t%d\t\%d\n", i, orig_data[i], gain_data[i], rest_data[i]);
 	}
 	fclose(data_file);
