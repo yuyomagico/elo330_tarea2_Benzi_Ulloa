@@ -123,8 +123,6 @@ int main(int argc, const char* argv[]){
       fprintf(stderr,"WARN: Can't play audio on a Mac\n");
       exit(0);
 #endif
-	
-	  plot_data(orig_data, gain_data, rest_data, filesize);
 
       FILE* stream = popen(play_command, "r");
       pclose(stream);
@@ -132,6 +130,8 @@ int main(int argc, const char* argv[]){
       pclose(stream);
       stream = popen(play_command_r, "r");
       pclose(stream);
+	  
+	  plot_data(orig_data, gain_data, rest_data, filesize);
     }
   }
   exit(0);
@@ -235,6 +235,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 	//remove(tmpName);
 	
 	printf("Archivo restaurado.\n");
+	
 }
 
 void plot_data(short int* orig_data, short int* gain_data, short int* rest_data, int filesize){
@@ -250,7 +251,8 @@ void plot_data(short int* orig_data, short int* gain_data, short int* rest_data,
 	}
 	fclose(data_file);
 	
-	sprintf(plot_str, "gnuplot -persist -e \"plot  \\\"data.dat\\\" using 1:2;\"plot  \\\"gain.dat\\\" using 1:2;\"plot  \\\"rest.dat\\\" using 1:2\"");
+	sprintf(plot_str, "gnuplot -persist -e \"plot  \\\"data.dat\\\" using 1:2\"");
 	
-	FILE* plotter = popen(plot_str, "w");
+	system(plot_str);
+	
 }
