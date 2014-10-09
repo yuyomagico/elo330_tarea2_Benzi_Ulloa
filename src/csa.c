@@ -19,6 +19,7 @@ char* PLAY_COMMAND = "aplay --format=S16_LE -t raw %s";
 #endif
 
 void check_data(short int*, short int*, float, int);
+void plot_data(short int*, short int*, short int*, int);
 
 int main(int argc, const char* argv[]){
  printf("OS: %s\n", OS_VERSION);
@@ -41,19 +42,20 @@ int main(int argc, const char* argv[]){
       if( filesize%2 != 0 ){
         filesize--;
       }
+	  filesize = filesize/2;
       // MBT: Si prepones una extension al nombre del archivo, cuando uses un archivo dentro de una carpeta GG	
       sprintf(g_file,"%s%s",argv[1],"._g");
       sprintf(r_file,"%s%s",argv[1],"._r");
     }
     /* Se lee el archivo de audio de entrada*/
-    short int orig_data[filesize/2];
-    short int gain_data[filesize/2];
-    short int rest_data[filesize/2];
+    short int orig_data[filesize];
+    short int gain_data[filesize];
+    short int rest_data[filesize];
 
     /* Abertura de archivos, en modo binario, lectura y escritura segun corresponda */
     FILE* input_file = fopen(argv[1], "rb");
 
-    fread(orig_data, sizeof(short), filesize/2, input_file);
+    fread(orig_data, sizeof(short), filesize, input_file);
     fclose(input_file);
 
     int i;
@@ -62,7 +64,7 @@ int main(int argc, const char* argv[]){
     printf("Ganancia: %f\n", gain);
 
     /* Se realiza el ajuste de ganancias */
-    for(i=0; i<filesize/2; i++){
+    for(i=0; i<filesize; i++){
       if(orig_data[i] < 0 && orig_data[i]*gain < -32768){
         gain_data[i]=(short int)-32768;
       }
@@ -80,7 +82,7 @@ int main(int argc, const char* argv[]){
       fprintf(stderr,"Error: couldn't create file %s.\n", g_file); 
       abort();
     }
-    fwrite(gain_data, sizeof(short), filesize/2, gain_file);
+    fwrite(gain_data, sizeof(short), filesize, gain_file);
     fclose(gain_file);
 
     /* Se Analiza el archivo con ganancia */
@@ -92,7 +94,7 @@ int main(int argc, const char* argv[]){
       fprintf(stderr,"Error: couldn't create file %s.\n", r_file); 
       abort();
     }
-    fwrite(rest_data, sizeof(short), filesize/2, rest_file);
+    fwrite(rest_data, sizeof(short), filesize, rest_file);
     fclose(rest_file);
 
     /* Se reproduce el archivo de audio de entrada, amplificado y restaurado */
@@ -113,7 +115,7 @@ int main(int argc, const char* argv[]){
 
       /* Se muestra el comando y el tamanio del archivo */
       printf("Play command: %s\n", play_command);
-      printf("File size Bytes: %d Words: %d\n", filesize, filesize/2);
+      printf("File size Bytes: %d Words: %d\n", filesize, filesize);
 
       // MBT: Su hack feo para que se pueda usar en un Mac
       // aunque sea para solo tratar los archivos
@@ -121,6 +123,9 @@ int main(int argc, const char* argv[]){
       fprintf(stderr,"WARN: Can't play audio on a Mac\n");
       exit(0);
 #endif
+	
+	  plot_data(orig_data, gain_data, rest_data, filesize);
+
       FILE* stream = popen(play_command, "r");
       pclose(stream);
       stream = popen(play_command_g, "r");
@@ -231,4 +236,22 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 	//remove(tmpName);
 	
 	printf("Archivo restaurado.\n");
+}
+
+void plot_data(short int* orig_data, short int* gain_data, short int* rest_data, int filesize){
+	char plot_str[CMD_LENGTH];
+	
+	FILE* data_file = fopen("data.dat", "w");
+	
+	fprintf(data_file, "# time\torig\tgain\trest\n");
+	
+	int i;
+	for(i=0; i<filesize; i++){
+		fprintf(data_file, "%d\t%d\t%d\%d\n", i, orig_data[i], gain_data[i], rest_data[i]);
+	}
+	fclose(data_file);
+	
+	sprintf(plot_str, "gnuplot -persist -e \"plot  \\\"data.dat\\\" using 1:2;\"plot  \\\"gain.dat\\\" using 1:2;\"plot  \\\"rest.dat\\\" using 1:2\"");
+	
+	FILE* plotter = popen(plot_str, "w");
 }
