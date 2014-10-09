@@ -194,22 +194,25 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 					
 					for(j=sat_start; j<=sat_end; j++){
 						if(j != sat_end)
-							sprintf(to_eval, "%d,", j);
+							sprintf(num, "%d,", j);
 						else
-							sprintf(to_eval, "%d\0", j);
+							sprintf(num, "%d", j);
+						strcat(to_eval, num);
 					}
 					
-					sprintf(fit, "octave --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]) | sed -n -e '/RESULT =/,${p}' |  sed 's/ \\+/,/g'> %s", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 8, to_eval, tmpName);
+					//sprintf(fit, "octave --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]) | sed -n -e '/RESULT =/,${p}' |  sed 's/ \\+/,/g'> %s", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 2, to_eval, tmpName);
+					sprintf(fit, "octave -q --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]);csvwrite('%s',RESULT)", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 4, to_eval, tmpName);
 					FILE* octave = popen(fit, "w");
 					pclose(octave);
 					
 					FILE* output = fopen(tmpName, "r");
-					fscanf(output, "RESULT,=\n\n");
 					
 					int k = 0;
 					for(k=0; k< sat_end - sat_start + 1; k++){
-						//result[k] = atoi((char*) output);
-						fscanf(output, ",%f", &(result[k]));
+						if(k == sat_end - sat_start)
+							fscanf(output, "%f", &(result[k]));
+						else
+							fscanf(output, "%f,", &(result[k]));
 					}
 					fclose(output);
 					
