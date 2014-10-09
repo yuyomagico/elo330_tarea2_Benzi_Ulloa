@@ -199,7 +199,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 							sprintf(to_eval, "%d\0", j);
 					}
 					
-					sprintf(fit, "octave --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]) | sed -n -e '/RESULT =/,${p}' |  sed 's/ \\+/,/g'> %s", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 2, to_eval, tmpName);
+					sprintf(fit, "octave --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]) | sed -n -e '/RESULT =/,${p}' |  sed 's/ \\+/,/g'> %s", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 8, to_eval, tmpName);
 					FILE* octave = popen(fit, "w");
 					pclose(octave);
 					
@@ -216,12 +216,12 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 					//printf("P = %.2fx^4 %.2fx^3 %.2fx^2 %.2fx %.2f\nUBICACION: %d SATURACIONES: %d\n", A, B, C, D, E, sat_start*2, (sat_end - sat_start + 1));
 					for(j=sat_start; j<=sat_end; j++){
 						if(result[j-sat_start] > 32767 || result[j-sat_start] < -32768){
-							//printf("Dato (%d,%.2f) saturado\n", j, result[j-sat_start]);
+							printf("Dato (%d,%.2f) saturado\n", j, result[j-sat_start]);
 							rest_data[j] = rest_data[j-1];
 						}
 						else{
 							rest_data[j] = result[j-sat_start];
-							//printf("Nuevo dato (%d, %d)\n", j, rest_data[j]);
+							printf("Nuevo dato (%d, %d)\n", j, rest_data[j]);
 						}
 					}
 				}
