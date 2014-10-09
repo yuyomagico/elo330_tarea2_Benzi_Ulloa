@@ -263,7 +263,7 @@ void plot_data(short int* orig_data, short int* gain_data, short int* rest_data,
 	}
 	fclose(data_file);
 	
-	sprintf(plot_str, "gnuplot -persist plot_script.gp");
+	sprintf(plot_str, "gnuplot -persist etc/plot_script.gp");
 
 	system(plot_str);
 	system("rm data.dat");
