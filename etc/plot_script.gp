@@ -1,12 +1,15 @@
-set multiplot layout 3, 1 title "Sonidos" font ",14"
+set multiplot layout 3, 1 title "Graficos"
 set tmargin 2
 set title "Original"
+set yrange [-32768:32767]
 unset key
-plot "data.dat" using 1:2 with lines
+plot "data.dat" using 1:2 with lines 
 set title "Amplified"
+set yrange [-32768:32767]
 unset key
 plot "data.dat" using 1:3  with lines
 set title "Restored"
+set yrange [-32768:32767]
 unset key
 plot "data.dat" using 1:4  with lines
 unset multiplot
