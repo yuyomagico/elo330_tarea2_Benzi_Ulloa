@@ -159,7 +159,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 		/* Valores para realizar interpolacion */
 		short int X[4], Y[4];
 		for(i=0; i < data_length; i++){
-			printf("\rProgreso: %.1f\%",(float) i/data_length*100);
+			printf("\rProgreso: %.1f%%",(float) i/data_length*100);
 			fflush(stdout);
 			/* Chequeo saturacion y no estar en los extremos */
 			if((gain_data[i] == 32767 || gain_data[i] == -32768) && i < data_length - 2 && i > 1){
@@ -196,7 +196,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 					float result[sat_end - sat_start + 1];
 					int j;
 					
-					sprintf(to_eval, "");
+					to_eval[0] = '\0';
 					
 					for(j=sat_start; j<=sat_end; j++){
 						if(j != sat_end)
@@ -237,7 +237,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 				}
 			}
 		}
-		printf("\rProgreso: 100\% [Listo]\n");
+		printf("\rProgreso: 100%% [Listo]\n");
 	}
 	else{
 		printf("Error: gain = 0");
