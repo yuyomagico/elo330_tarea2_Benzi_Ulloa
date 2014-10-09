@@ -159,6 +159,8 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 		/* Valores para realizar interpolacion */
 		short int X[4], Y[4];
 		for(i=0; i < data_length; i++){
+			printf("\rProgreso: %.1f\%",(float) i/data_length*100);
+			fflush(stdout);
 			/* Chequeo saturacion y no estar en los extremos */
 			if((gain_data[i] == 32767 || gain_data[i] == -32768) && i < data_length - 2 && i > 1){
 				short int sat_type;
@@ -185,7 +187,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 				
 				/* Solo considerar saturaciones mayores a 2 puntos*/
 				if(sat_end - sat_start > 1){
-					printf("X: [%d,%d,%d,%d], Y: [%d,%d,%d,%d]\n", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3]);
+					//printf("X: [%d,%d,%d,%d], Y: [%d,%d,%d,%d]\n", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3]);
 					/* Polyfit, parseando salida (borra todo lo que salga antes de "RESULT") y guardandola en archivo */
 										
 					/* Se reparan todos los puntos afectados en los datos a restaurar*/
@@ -224,25 +226,26 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 					
 					for(j=sat_start; j<=sat_end; j++){
 						if(result[j-sat_start] > 32767 || result[j-sat_start] < -32768){
-							printf("Dato (%d,%.2f) saturado\n", j, result[j-sat_start]);
+					//		printf("Dato (%d,%.2f) saturado\n", j, result[j-sat_start]);
 							rest_data[j] = rest_data[j-1];
 						}
 						else{
 							rest_data[j] = result[j-sat_start];
-							printf("Interpolacion: (%d, %d)\n", j, rest_data[j]);
+					//		printf("Interpolacion: (%d, %d)\n", j, rest_data[j]);
 						}
 					}
 				}
 			}
 		}
+		printf("\rProgreso: 100\% [Listo]\n");
 	}
 	else{
 		printf("Error: gain = 0");
 		exit(1);
 	}
 	
-	//remove(tmpName);
-	
+	system("rm tempFile");
+
 	printf("Archivo restaurado.\n");
 	
 }
@@ -260,7 +263,7 @@ void plot_data(short int* orig_data, short int* gain_data, short int* rest_data,
 	}
 	fclose(data_file);
 	
-	sprintf(plot_str, "gnuplot -persist plot_script.gp");
+	sprintf(plot_str, "gnuplot -persist etc/plot_script.gp");
 
 	system(plot_str);
 	system("rm data.dat");
