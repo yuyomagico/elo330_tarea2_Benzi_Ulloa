@@ -147,9 +147,8 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 	
 	/* Parametros del polinomio de interpolacion, valores polinomio interpolacion, archivo temporal, comando fit y comando calc*/
 	float A,B,C,D,E;
-	char tmpName [L_tmpnam];
+	char *tmpName = "tempFile";
 	char fit[CMD_LENGTH], eval[CMD_LENGTH];
-	tmpnam (tmpName);
 	
 	int i;
 	if(gain != 0){
@@ -206,10 +205,13 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 					}
 					
 					sprintf(fit, "octave -q --eval \"p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]);csvwrite('%s',RESULT)\"", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 4, to_eval, tmpName);
-					FILE* octave = popen(fit, "w");
-					pclose(octave);
+					system(fit);
 					
 					FILE* output = fopen(tmpName, "r");
+					if (output == NULL) {
+						fprintf(stderr, "Error: Couldn't open file %s\n",tmpName);
+						abort();
+					}
 					
 					int k = 0;
 					for(k=0; k< sat_end - sat_start + 1; k++){
