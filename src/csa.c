@@ -205,7 +205,7 @@ void check_data(short int *gain_data, short int *rest_data, float gain,  int dat
 						strcat(to_eval, num);
 					}
 					
-					sprintf(fit, "octave -q --eval p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]);csvwrite('%s',RESULT)", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 4, to_eval, tmpName);
+					sprintf(fit, "octave -q --eval \"p=polyfit([%d,%d,%d,%d],[%d,%d,%d,%d],%d);RESULT=polyval(p,[%s]);csvwrite('%s',RESULT)\"", X[0], X[1], X[2], X[3], Y[0], Y[1], Y[2], Y[3], 4, to_eval, tmpName);
 					FILE* octave = popen(fit, "w");
 					pclose(octave);
 					
