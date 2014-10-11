@@ -19,6 +19,7 @@ Si el parámetro [p] es ingresado, csa reproduce el archivo de audio original co
 ### Notas para Windows:
 
 El programa utiliza *sox.exe*, por lo que se requiere tenerlo en el path o en el directorio del programa. El archivo ya esta en el repositorio.
+Tambien se requiere tener instalado *gnuplot v4.0+* y *octave v3.6+*. Es necesario que estos programas, junto con *sox* se encuentren en el **PATH**.
 
 ### Notas para Linux:
 
@@ -28,19 +29,20 @@ administrador de paquetes propio de la distribucion.
 #### Ubuntu
 
     $ sudo apt-get install aplay
+    $ sudo apt-get install octave
+    $ sudo apt-get install gnuplot
 
 #### Fedora
 
-    $ yum install aplay
+    $ sudo yum yum install aplay
+    $ sudo yum install octave
+    $ sudo yum install gnuplot
 
 ### Notas para computadores Macintosh (OS X)
 
 Actualmente **CSA** no permite reproducir sonido en un equipo
 Macintosh. Sin embargo se puede realizar la saturación y corrección del
-archivo de audio sin problemas.
-
-### Windows, Linux y OS X
-Tambien se requiere tener instalado *gnuplot v4.0+* y *octave v3.6+*. Para el caso de Windows, es necesarios que estos programas, junto con *sox* se encuentren en el **PATH**.
+archivo de audio sin problemas. Se requiere tanto *octave* como *gnuplot*
 
 Compilando y Corriendo
 ----------------------
