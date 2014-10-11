@@ -39,6 +39,9 @@ Actualmente **CSA** no permite reproducir sonido en un equipo
 Macintosh. Sin embargo se puede realizar la saturación y corrección del
 archivo de audio sin problemas.
 
+### Windows, Linux y OS X
+Tambien se requiere tener instalado *gnuplot v4.0+* y *octave v3.6+*. Para el caso de Windows, es necesarios que estos programas, junto con *sox* se encuentren en el **PATH**.
+
 Compilando y Corriendo
 ----------------------
 
