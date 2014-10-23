@@ -1,0 +1,18 @@
+Revisión del ayudante:
+Marco Benzi, Jaime Ulloa
+
+Documentación (30%):				100
+Compilación (10%):					100
+Ejecución (60%):
+* Interpretación del archivo (10%):	100
+* Gráficos (25%):					100
+* Reproducción (15%):				100
+* Índice de error (10%):			0
+-----------------------------
+Total:								
+
+Comentarios:
+* Me gustó el detalle de que lo hicieran Multiplataforma, usando directivas de compilador. Muy buen trabajo ahí.
+* Además, buen detalle de incluir el porcentaje de progreso. Es muy útil si un código demora mucho en ejecutarse y no quieren dar la sensación de que el programa se quedó colgado.
+* No se incluyó el cálculo del error.
+
